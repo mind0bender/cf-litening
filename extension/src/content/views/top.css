@@ -1,0 +1,22 @@
+/* Top - Page */
+
+.meta {
+  background: var(--color-stone-900);
+  border-color: var(--color-stone-600);
+}
+
+.topic-rating {
+  color: var(--color-green-500) !important;
+}
+.ttypography > * {
+  box-shadow: none;
+}
+.user-green{
+
+}
+.user-cyan{
+
+}
+.user-red{
+    
+}
