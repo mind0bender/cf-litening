@@ -11,10 +11,10 @@ export default function Toggle({
   return (
     <button
       {...props}
-      className={`bg-indigo-200 rounded-full w-10 h-6 cursor-pointer relative hover:ring-3 ring-indigo-400/50 ${className}`}
+      className={`${value ? "bg-indigo-200" : "bg-stone-600"} rounded-full w-10 h-6 cursor-pointer relative ring ring-stone-500 ${className} duration-200`}
     >
       <div
-        className={`rounded-full w-5 h-5 bg-indigo-950 absolute top-0.5 ${!value ? "left-0.5" : "left-4.5"} duration-200`}
+        className={`rounded-full w-4 h-4 bg-indigo-950 absolute top-1 ${value ? "left-5 bg-indigo-950" : "left-1 bg-stone-50"} duration-200`}
       />
     </button>
   );
