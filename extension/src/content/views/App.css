@@ -1,3 +1,7 @@
+body {
+  background-color: transparent;
+}
+
 .popup-container {
   position: fixed;
   right: 0;
@@ -9,6 +13,8 @@
   font-family: ui-sans-serif, system-ui, sans-serif;
   user-select: none;
   line-height: 1em;
+  border-radius: 20rem;
+  padding-top: 10rem;
 }
 
 .popup-content {
