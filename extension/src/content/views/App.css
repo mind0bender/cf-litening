@@ -1,5 +1,3 @@
-@import "./top.css";
-
 :root {
   --color-red-50: oklch(97.1% 0.013 17.38);
   --color-red-100: oklch(93.6% 0.032 17.717);
@@ -315,10 +313,7 @@ a {
   &:hover,
   &:focus {
     background-color: var(--color-stone-950) !important;
-    box-shadow: 0 2px 0 0 var(--color-white);
-  }
-  &::before {
-    content: "@";
+    box-shadow: 0 2px 0 0 var(--color-stone-500);
   }
 }
 .user-orange {
@@ -356,8 +351,7 @@ a {
 }
 .user-legendary {
   & .legendary-user-first-letter {
-    background: var(--color-stone-100) !important;
-    color: var(--color-stone-950) !important;
+    color: var(--color-white) !important;
   }
 }
 
@@ -505,4 +499,3 @@ a {
     border-color: var(--color-stone-600) !important;
   }
 }
-
