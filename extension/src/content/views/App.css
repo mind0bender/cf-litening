@@ -305,6 +305,12 @@ a {
   }
 }
 
+select{
+  background-color: var(--color-stone-700);
+  border-color: var(--color-stone-600);
+  color: var(--color-stone-100);
+}
+
 .rated-user {
   font-family: monospace;
   transition: box-shadow 0.2s; /* Smooth like Tailwind */
@@ -424,6 +430,9 @@ a.user-admin {
 }
 
 .alert {
+  & * {
+    text-shadow: none;
+  }
   & a {
     color: var(--color-indigo-300) !important;
   }
@@ -492,7 +501,7 @@ a.user-admin {
     border-color: var(--color-stone-600) !important;
   }
   & .titled {
-    color: var(--color-blue-400) !important;
+    color: var(--color-stone-200) !important;
   }
   & .contest-state-phase {
     color: var(--color-blue-500) !important;
@@ -561,48 +570,49 @@ a.user-admin {
     color: var(--color-stone-300) !important;
   }
 }
-@media screen {
-  .prettyprint .str {
-    color: #080;
-    font-weight: bold;
-  } /* string content */
-  .prettyprint .kwd {
-    color: #008;
-    font-weight: bold;
-  } /* a keyword */
-  .prettyprint .com {
-    color: #800;
-    font-weight: bold;
-  } /* a comment */
-  .prettyprint .typ {
-    color: #606;
-    font-weight: bold;
-  } /* a type name */
-  .prettyprint .lit {
-    color: #066;
-  } /* a literal value */
-  /* punctuation, lisp open bracket, lisp close bracket */
-  .prettyprint .pun,
-  .prettyprint .opn,
-  .prettyprint .clo {
-    color: #660;
+.comment-table {
+  border-color: var(--color-stone-400);
+}
+.prettyprint .str {
+  color: var(--color-green-400) !important;
+} /* string content */
+.prettyprint .kwd {
+  color: var(--color-blue-300) !important;
+} /* a keyword */
+.prettyprint .com {
+  color: var(--color-red-400) !important;
+} /* a comment */
+.prettyprint .typ {
+  color: var(--color-purple-400) !important;
+} /* a type name */
+.prettyprint .lit {
+  color: var(--color-cyan-300) !important;
+} /* a literal value */
+/* punctuation, lisp open bracket, lisp close bracket */
+.prettyprint .pun,
+.prettyprint .opn,
+.prettyprint .clo {
+  color: var(--color-lime-400) !important;
+}
+.prettyprint .tag {
+  color: var(--color-blue-300) !important;
+} /* a markup tag name */
+.prettyprint .atn {
+  color: var(--color-purple-400) !important;
+} /* a markup attribute name */
+.prettyprint .atv {
+  color: var(--color-green-400) !important;
+} /* a markup attribute value */
+.prettyprint .dec,
+.prettyprint .var {
+  color: var(--color-purple-400) !important;
+} /* a declaration; a variable name */
+.prettyprint .fun {
+  color: var(--color-red-400) !important;
+} /* a function name */
+
+.info {
+  & span > span {
+    color: var(--color-green-500) !important;
   }
-  .prettyprint .tag {
-    color: #008;
-    font-weight: bold;
-  } /* a markup tag name */
-  .prettyprint .atn {
-    color: #606;
-  } /* a markup attribute name */
-  .prettyprint .atv {
-    color: #080;
-    font-weight: bold;
-  } /* a markup attribute value */
-  .prettyprint .dec,
-  .prettyprint .var {
-    color: #606;
-  } /* a declaration; a variable name */
-  .prettyprint .fun {
-    color: red;
-  } /* a function name */
 }
