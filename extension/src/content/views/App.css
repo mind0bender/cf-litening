@@ -316,47 +316,76 @@ a {
     box-shadow: 0 2px 0 0 var(--color-stone-500);
   }
 }
-.user-orange {
-  color: var(--color-orange-400) !important;
+a.user-orange {
+  &,
+  :visited {
+    color: var(--color-orange-400) !important;
+  }
 }
-.user-blue {
-  color: var(--color-blue-500) !important;
+a.user-blue {
+  &,
+  :visited {
+    color: var(--color-blue-500) !important;
+  }
 }
-.user-red {
-  color: var(--color-red-500) !important;
+a.user-red {
+  &,
+  :visited {
+    color: var(--color-red-500) !important;
+  }
 }
-.user-violet {
-  color: var(--color-violet-500) !important;
+a.user-violet {
+  &,
+  :visited {
+    color: var(--color-violet-500) !important;
+  }
 }
-.user-green {
-  color: var(--color-green-500) !important;
+a.user-green {
+  &,
+  :visited {
+    color: var(--color-green-500) !important;
+  }
 }
-.user-cyan {
-  color: var(--color-cyan-500) !important;
+a.user-cyan {
+  &,
+  :visited {
+    color: var(--color-cyan-500) !important;
+  }
 }
-.user-gray {
-  color: var(--color-stone-200) !important;
+a.user-gray {
+  &,
+  :visited {
+    color: var(--color-stone-200) !important;
+  }
 }
-.user-black {
-  color: var(--color-white) !important;
+a.user-black {
+  &,
+  :visited {
+    color: var(--color-white) !important;
+  }
 }
-.user-admin.user-admin {
-  background-color: var(--color-stone-100) !important;
-  border: 4px white !important;
-  /* needs to override the .rated-user states */
+a.user-admin {
+  &,
   &:hover,
-  &:active {
-    background-color: var(--color-stone-200) !important;
+  &:active,
+  &:visited {
+    background-color: var(--color-stone-100) !important;
+    border: 4px white !important;
+    color: var(--color-stone-900) !important;
   }
 }
 .user-legendary {
   & .legendary-user-first-letter {
+    background: var(--white);
     color: var(--color-white) !important;
   }
 }
 
 /* mathjax */
-.mn {
+.mn,
+.mi,
+.mrow,
+.spoiler-title {
   color: var(--color-stone-300) !important;
 }
 
@@ -498,4 +527,82 @@ a {
     background: var(--color-stone-700) !important;
     border-color: var(--color-stone-600) !important;
   }
+}
+
+/* /top page */
+.second-level-menu {
+  & li.backLava {
+    background: var(--color-stone-700) !important;
+    & * {
+      background: var(--color-stone-700) !important;
+    }
+  }
+  & li.current > a {
+    color: var(--color-indigo-200) !important;
+  }
+}
+.collapsible-topic-options {
+  &::before {
+    background-image: linear-gradient(
+      transparent,
+      var(--color-stone-700)
+    ) !important;
+  }
+}
+
+.tt {
+  background: var(--color-stone-800) !important;
+  color: var(--color-stone-200) !important;
+  border-color: var(--color-stone-700) !important;
+}
+
+.ttypography {
+  & p {
+    color: var(--color-stone-300) !important;
+  }
+}
+@media screen {
+  .prettyprint .str {
+    color: #080;
+    font-weight: bold;
+  } /* string content */
+  .prettyprint .kwd {
+    color: #008;
+    font-weight: bold;
+  } /* a keyword */
+  .prettyprint .com {
+    color: #800;
+    font-weight: bold;
+  } /* a comment */
+  .prettyprint .typ {
+    color: #606;
+    font-weight: bold;
+  } /* a type name */
+  .prettyprint .lit {
+    color: #066;
+  } /* a literal value */
+  /* punctuation, lisp open bracket, lisp close bracket */
+  .prettyprint .pun,
+  .prettyprint .opn,
+  .prettyprint .clo {
+    color: #660;
+  }
+  .prettyprint .tag {
+    color: #008;
+    font-weight: bold;
+  } /* a markup tag name */
+  .prettyprint .atn {
+    color: #606;
+  } /* a markup attribute name */
+  .prettyprint .atv {
+    color: #080;
+    font-weight: bold;
+  } /* a markup attribute value */
+  .prettyprint .dec,
+  .prettyprint .var {
+    color: #606;
+  } /* a declaration; a variable name */
+  .prettyprint .fun {
+    color: red;
+  } /* a function name */
 }
