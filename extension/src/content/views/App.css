@@ -305,7 +305,7 @@ a {
   }
 }
 
-select{
+select {
   background-color: var(--color-stone-700);
   border-color: var(--color-stone-600);
   color: var(--color-stone-100);
@@ -384,6 +384,7 @@ a.user-admin {
   & .legendary-user-first-letter {
     background: var(--white);
     color: var(--color-white) !important;
+    filter: invert(100%);
   }
 }
 
@@ -436,6 +437,14 @@ a.user-admin {
   & a {
     color: var(--color-indigo-300) !important;
   }
+}
+
+.alert-warning {
+  background: rgb(from var(--color-yellow-400) r g b / 0.15) !important;
+  border-color: var(--color-yellow-900) !important;
+  color: var(--color-yellow-400) !important;
+  font-weight: thin !important;
+  font-family: "Inter", sans-serif !important;
 }
 
 /* lang chooser */
@@ -494,8 +503,10 @@ a.user-admin {
 .sidebox {
   background: var(--color-stone-800) !important;
   border-color: var(--color-stone-700) !important;
-  & span {
-    color: var(--color-stone-300) !important;
+  & span,
+  & code,
+  & ._CatalogHistorySidebarFrame_item {
+    color: var(--color-stone-100) !important;
   }
   & * {
     border-color: var(--color-stone-600) !important;
@@ -518,16 +529,6 @@ a.user-admin {
     & td.dark {
       background: var(--color-stone-700) !important;
     }
-  }
-  & input {
-    background: var(--color-stone-700) !important;
-    color: var(--color-stone-100);
-    outline: none;
-  }
-  & input[type="submit"] {
-    background: var(--color-stone-300) !important;
-    color: var(--color-stone-950);
-    border-color: var(--color-stone-950);
   }
 }
 
@@ -614,5 +615,47 @@ a.user-admin {
 .info {
   & span > span {
     color: var(--color-green-500) !important;
+  }
+}
+
+._CatalogHistorySidebarFrame_value {
+  & del {
+    background: var(--color-red-600) !important;
+  }
+  & ins {
+    background: var(--color-green-400) !important;
+  }
+  & del,
+  ins {
+    color: var(--color-stone-950) !important;
+    padding: 0 0.2rem 0 0.2rem !important;
+  }
+}
+._CatalogViewFrame_catalog-action-icon {
+  color: var(--color-stone-500) !important;
+}
+
+#pageContent.content-with-sidebar {
+  & .caption,
+  & ._nameContent._catalogFolderName {
+    color: var(--color-blue-400) !important;
+  }
+  & .icon-file-text-alt {
+    &::before {
+      color: var(--color-stone-400) !important;
+    }
+  }
+
+  & ._name {
+    & ._nameBody {
+      color: var(--color-stone-200) !important;
+      & .format-humantime {
+        color: var(--color-stone-200) !important;
+      }
+
+      & small {
+        color: var(--color-stone-300) !important;
+      }
+    }
   }
 }
