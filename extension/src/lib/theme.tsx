@@ -1,0 +1,35 @@
+import { Theme } from "@/popup/App";
+
+const setCFDark = (theme: Theme): void => {
+  switch (theme) {
+    case Theme.light:
+      document.body.classList.remove("cf-dark");
+      break;
+    case Theme.dark:
+      document.body.classList.add("cf-dark");
+      break;
+    case Theme.unknown:
+      document.body.classList.remove("cf-dark");
+      break;
+  }
+};
+
+chrome.runtime.onMessage.addListener(
+  (
+    message: {
+      action: string;
+      payload: any;
+    },
+    _sender: chrome.runtime.MessageSender,
+    sendResponse: (response?: any) => void,
+  ): void => {
+    console.log({ message });
+    if (message.action === "SET_THEME") {
+      const theme = message.payload as Theme;
+      setCFDark(theme);
+      sendResponse({
+        status: "success",
+      });
+    }
+  },
+);

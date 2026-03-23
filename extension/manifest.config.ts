@@ -24,4 +24,10 @@ export default defineManifest({
   side_panel: {
     default_path: "src/sidepanel/index.html",
   },
+  web_accessible_resources: [
+    {
+      resources: ["src/assets/*"],
+      matches: ["<all_urls>"],
+    },
+  ],
 });

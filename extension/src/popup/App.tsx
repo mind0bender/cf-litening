@@ -2,7 +2,7 @@ import Button from "@/components/Button";
 import Toggle from "@/components/Toggle";
 import { JSX, useCallback, useEffect, useState } from "react";
 
-enum Theme {
+export enum Theme {
   unknown,
   light,
   dark,
@@ -19,10 +19,27 @@ function App(): JSX.Element {
     })();
   }, []);
 
+  const sendThemeToContent = useCallback(
+    async (theme: Theme): Promise<void> => {
+      const [tab] = await chrome.tabs.query({
+        active: true,
+        currentWindow: true,
+      });
+      if (tab.id) {
+        chrome.tabs.sendMessage(tab.id, {
+          action: "SET_THEME",
+          payload: theme,
+        });
+      }
+    },
+    [],
+  );
+
   const toggleTheme = useCallback(async (): Promise<void> => {
     const newTheme: Theme = theme === Theme.light ? Theme.dark : Theme.light;
     await chrome.storage.local.set({ theme: newTheme });
     setTheme(newTheme);
+    sendThemeToContent(newTheme);
   }, [theme]);
 
   const toggleSidebar = useCallback((): void => {
