@@ -16,6 +16,7 @@ function App(): JSX.Element {
       const { theme: lastTheme }: { theme: Theme } =
         (await chrome.storage.local.get("theme")) ?? 1;
       setTheme(lastTheme);
+      sendThemeToContent(lastTheme);
     })();
   }, []);
 

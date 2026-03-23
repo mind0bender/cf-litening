@@ -33,3 +33,8 @@ chrome.runtime.onMessage.addListener(
     }
   },
 );
+
+const { theme: lastTheme }: { theme: Theme } =
+  (await chrome.storage.local.get("theme")) ?? 1;
+
+setCFDark(lastTheme);

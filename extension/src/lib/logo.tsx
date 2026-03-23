@@ -37,7 +37,6 @@ chrome.runtime.onMessage.addListener(
     _sender: chrome.runtime.MessageSender,
     sendResponse: (response?: any) => void,
   ): void => {
-    console.log({ message });
     if (message.action === "SET_THEME") {
       const theme = message.payload as Theme;
       setLogo(theme);
@@ -47,3 +46,8 @@ chrome.runtime.onMessage.addListener(
     }
   },
 );
+
+const { theme: lastTheme }: { theme: Theme } =
+  (await chrome.storage.local.get("theme")) ?? 1;
+
+setLogo(lastTheme);
