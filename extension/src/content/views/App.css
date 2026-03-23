@@ -410,15 +410,10 @@ a.user-admin {
     color: var(--color-stone-900) !important;
   }
 }
-.user-legendary {
+
+.rated-user.user-legendary {
   & .legendary-user-first-letter {
-    color: white !important;
-    filter: invert(100%);
-    /* manually invert bg since using a filter to restore back to original */
-    background: rgba(
-      from transparent calc(255 - r) calc(255 - g) calc(255 - b),
-      0
-    ) !important;
+    filter: invert(1) hue-rotate(180deg);
   }
 }
 
@@ -566,8 +561,14 @@ a.user-admin {
       background: var(--color-stone-700) !important;
     }
   }
-  .setting-name {
+  & .setting-name {
     color: var(--color-blue-400) !important;
+  }
+  & .roundbox {
+    background: var(--color-stone-800) !important;
+    & .tag-box {
+      background: var(--color-stone-800) !important;
+    }
   }
 }
 .vote-list-filterDifficultyLowerBorder {
@@ -582,6 +583,11 @@ a.user-admin {
     background: var(--color-stone-700) !important;
     border-color: var(--color-stone-600) !important;
   }
+}
+
+.button-up {
+  background: var(--color-stone-800) !important;
+  border: 1px solid var(--color-stone-700);
 }
 
 /* /top page */
@@ -788,6 +794,7 @@ textarea {
     transform: translateX(-0.1rem);
     border: 1px solid var(--color-stone-400);
     padding-left: 0.75rem;
+    filter: invert(100%) !important;
   }
 }
 
@@ -827,6 +834,24 @@ table.bordertable {
   & li {
     &:hover {
       background: var(--color-stone-900);
+    }
+  }
+}
+
+.sample-test {
+  & .input,
+  & .output {
+    border-color: var(--color-stone-600) !important;
+    & .title {
+      border-color: var(--color-stone-600) !important;
+      & .input-output-copier {
+        border-color: var(--color-stone-600) !important;
+        background: var(--color-stone-800) !important;
+      }
+    }
+    & pre {
+      background: var(--color-stone-800) !important;
+      color: var(--color-red-400) !important;
     }
   }
 }
