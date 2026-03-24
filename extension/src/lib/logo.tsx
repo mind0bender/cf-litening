@@ -34,10 +34,10 @@ chrome.runtime.onMessage.addListener(
       action: string;
       payload: any;
     },
-    _sender: chrome.runtime.MessageSender,
+    sender: chrome.runtime.MessageSender,
     sendResponse: (response?: any) => void,
   ): void => {
-    if (message.action === "SET_THEME") {
+    if (sender.id === chrome.runtime.id && message.action === "SET_THEME") {
       const theme = message.payload as Theme;
       setLogo(theme);
       sendResponse({
