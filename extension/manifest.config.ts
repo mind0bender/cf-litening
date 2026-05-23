@@ -19,6 +19,12 @@ export default defineManifest({
     {
       js: ["src/content/main.tsx"],
       matches: ["https://codeforces.com/*"],
+      run_at: "document_idle",
+    },
+    {
+      js: ["src/content/views/App.css.js"],
+      matches: ["https://codeforces.com/*"],
+      run_at: "document_start",
     },
   ],
   side_panel: {
