@@ -410,6 +410,13 @@ body.cf-dark {
       color: var(--color-stone-900) !important;
     }
   }
+  & a.red-link.red-link.red-link {
+    background-color: var(--color-red-700) !important;
+    color: var(--color-blue-200) !important;
+    border-radius: 0.4rem;
+    padding-left: 0.6rem;
+    padding-right: 0.6rem;
+  }
 
   & .user-legendary.user-legendary {
     color: var(--color-red-500) !important;
