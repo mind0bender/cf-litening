@@ -4,6 +4,9 @@
   "workspaces": {
     "": {
       "name": "server",
+      "dependencies": {
+        "@mind0bender/code-runner": "^1.0.2",
+      },
       "devDependencies": {
         "@types/bun": "latest",
       },
@@ -13,6 +16,8 @@
     },
   },
   "packages": {
+    "@mind0bender/code-runner": ["@mind0bender/code-runner@1.0.2", "", { "peerDependencies": { "typescript": "^5" } }, "sha512-m1XwcNakKZL3CCGI9SrIo9hyWsLnmER/Qca1iBNuMMlOGR9/sWeYYCr0ZMzuzCZjbs3QgDOxZsA5s/qhVB+isw=="],
+
     "@types/bun": ["@types/bun@1.3.14", "", { "dependencies": { "bun-types": "1.3.14" } }, "sha512-h1hFqFVcvAvD9j9K7ZW7vd82aSA+rTdznZa+5bwvCwqSB1jmmfLcbIWhOLx1/+boy/xmjgCs/OMUL8hRJSmnPw=="],
 
     "@types/node": ["@types/node@25.9.2", "", { "dependencies": { "undici-types": ">=7.24.0 <7.24.7" } }, "sha512-G05zqtJhcDLb8uslf5EjCxXg9G1KQxiV8OS0R26IC//Eoyitzqe8z37I7cqvnZlrlSfgocQRfSn/AHBZJJFyGw=="],
