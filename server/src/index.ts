@@ -1,100 +1,29 @@
 import { Runner, compilers, type LANGUAGES, type RunnerResult } from "@mind0bender/code-runner";
-import { ServerWebSocket } from "bun";
+import { type ServerWebSocket } from "bun";
 
 const PORT: string = process.env.PORT || "3000";
 
-// interface UserSocket {
-//   socketId: string;
-// }
-//
-// const server = Bun.serve({
-//   port: PORT,
-//   routes: {
-//     "/run/:lang": (req: Bun.BunRequest<"/:lang">): Response => {
-//       console.log(`${req.method} method at ${new URL(req.url).pathname}`);
-//       const { lang } = req.params as { lang: LANGUAGES };
-//
-//       if (req.method === "GET") {
-//         const url: URL = new URL(req.url);
-//         const code: string = url.searchParams.get("code") || "";
-//         const stdins: string[] = url.searchParams.getAll("stdin");
-//         if (!stdins.length) stdins.push("");
-//
-//         console.log(code);
-//         console.log(stdins);
-//
-//         if (!lang || !code) {
-//           return new Response("Bad Request: lang and code must be specified", {
-//             status: 400,
-//           });
-//         }
-//
-//         if (!Object.hasOwn(compilers, lang)) {
-//           return new Response("Bad Request: Unsupported language", {
-//             status: 400,
-//           });
-//         }
-//
-//         const stream: ReadableStream<Uint8Array> = new ReadableStream({
-//           async start(controller: Bun.ReadableStreamController<Uint8Array>): Promise<void> {
-//             const encoder: TextEncoder = new TextEncoder();
-//             controller.enqueue(encoder.encode("started\n\n"));
-//             console.log("Starting...");
-//
-//             for (let stdin of stdins) {
-//               const result = await Runner.run(compilers[lang], code, {
-//                 stdin,
-//               });
-//               const output = result.stdout.replace(/\n/g, "\ndata: ");
-//               controller.enqueue(encoder.encode(`${output}\n\n`));
-//               console.log(`Output for stdin "${stdin}":\n${output}`);
-//             }
-//
-//             controller.enqueue(encoder.encode("ending\n\n"));
-//             console.log("ending...");
-//
-//             controller.close();
-//           },
-//         });
-//         return new Response(stream, {
-//           headers: {
-//             "Content-Type": "text/event-stream",
-//             "Cache-Control": "no-cache",
-//             Connection: "keep-alive",
-//           },
-//         });
-//       }
-//
-//       return Response.json({ lang });
-//     },
-//   },
-//   websocket: {
-//     data: {} as UserSocket,
-//     open(ws: Bun.ServerWebSocket<UserSocket>): void {
-//       console.log(`\tclient++\t:\t${ws.data.socketId}\tjoined`);
-//     },
-//     message(ws: Bun.ServerWebSocket<UserSocket>, message: string): void {
-//       console.log(`received a message from ${ws.data.socketId}\n${message}`);
-//     },
-//     close(ws: Bun.ServerWebSocket<UserSocket>, code: number, reason: string): void {
-//       console.log(`\tclient--\t:\t${ws.data.socketId}\tleft`);
-//     },
-//   },
-// });
+interface ExecutionInput {
+  stdin: string;
+  id: string;
+}
 
 interface ExecutionPayload {
   lang: LANGUAGES;
   code: string;
-  stdins: string[];
+  stdins: ExecutionInput[];
 }
 
-type ExecutionResult = RunnerResult;
+type ExecutionResult = {
+  inputId: string;
+  result: RunnerResult;
+};
+
 const server = Bun.serve({
   port: PORT,
-  fetch(req: Request, server: Bun.Server<undefined>): Response | undefined {
+  fetch(req, server) {
     const upgraded = server.upgrade(req);
     if (upgraded) return undefined;
-
     return new Response("Upgrade failed", { status: 400 });
   },
   websocket: {
@@ -102,38 +31,81 @@ const server = Bun.serve({
       console.log(`Registered connection from ${ws.remoteAddress}`);
     },
     async message(ws: ServerWebSocket, message: string): Promise<void> {
-      const data: ExecutionPayload = JSON.parse(message);
-      const { lang, code, stdins } = data;
+      try {
+        // Safe parsing protects the server from crashing on malformed JSON
+        const data: ExecutionPayload = JSON.parse(message);
+        const { lang, code, stdins } = data;
 
-      console.table({
-        lang,
-        code,
-        stdins: JSON.stringify(stdins),
-      });
+        console.table({ lang, code, stdins: JSON.stringify(stdins) });
 
-      if (!Object.hasOwn(compilers, lang)) {
+        // Validate compiler existence
+        if (!Object.hasOwn(compilers, lang)) {
+          ws.send(
+            JSON.stringify({
+              inputId: "-1",
+              result: {
+                verdict: "SYSTEM_ERROR",
+                stdout: "",
+                stderr: `Compiler for language '${lang}' not found`,
+                exitCode: 404,
+                executionTimeMs: -1,
+              },
+            }),
+          );
+          return;
+        }
+
+        console.log(`Starting execution for ${stdins.length} inputs...`);
+
+        const executionPromises = stdins.map(async (input: ExecutionInput): Promise<void> => {
+          if (ws.readyState !== 1) return;
+
+          try {
+            const runnerRes: RunnerResult = await Runner.run(compilers[lang], code, {
+              stdin: input.stdin,
+            });
+
+            const data: ExecutionResult = {
+              result: runnerRes,
+              inputId: input.id,
+            };
+
+            if (ws.readyState === 1) {
+              ws.send(JSON.stringify(data as ExecutionResult));
+              console.log(`Successfully queued frame: ${runnerRes.verdict}`);
+            }
+          } catch (error) {
+            if (ws.readyState === 1) {
+              ws.send(
+                JSON.stringify({
+                  inputId: input.id,
+                  result: {
+                    verdict: "SYSTEM_ERROR",
+                    stdout: "",
+                    stderr: error instanceof Error ? error.message : "Execution failed",
+                    exitCode: 500,
+                    executionTimeMs: -1,
+                  },
+                } satisfies ExecutionResult),
+              );
+            }
+          }
+        });
+
+        await Promise.all(executionPromises);
+        console.log("All execution frames processed.");
+      } catch (parseError) {
+        console.error("Malformed message payload received:", parseError);
         ws.send(
           JSON.stringify({
             verdict: "SYSTEM_ERROR",
             stdout: "",
-            stderr: "Compiler not found",
-            exitCode: 404,
+            stderr: "Invalid JSON format payload.",
+            exitCode: 400,
             executionTimeMs: -1,
-          } satisfies ExecutionResult),
+          }),
         );
       }
-
-      console.log("Starting...");
-
-      for (let stdin of stdins) {
-        const result: RunnerResult = await Runner.run(compilers[lang], code, {
-          stdin,
-        });
-        ws.send(JSON.stringify(result));
-        console.log(`sending ${JSON.stringify(result)}`);
-      }
-
-      console.log("ending...");
     },
     close(ws: ServerWebSocket): void {
       console.log(`Removed connection for ID: ${ws.remoteAddress}`);
