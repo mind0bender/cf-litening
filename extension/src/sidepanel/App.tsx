@@ -1,24 +1,62 @@
 import { LANGUAGES, type RunnerResult } from "@mind0bender/code-runner";
-import { useEffect, useState, useRef, ChangeEvent, JSX } from "react";
+import { Editor } from "@monaco-editor/react";
+import { useEffect, useState, useRef, type JSX } from "react";
+import RunIcon from "./assets/run.svg";
+
+interface ExecutionInput {
+  stdin: string;
+  id: string;
+}
 
 interface ExecutionPayload {
   lang: LANGUAGES;
   code: string;
-  stdins: string[];
+  stdins: ExecutionInput[];
 }
 
-type ExecutionResult = RunnerResult;
+type ExecutionResult = {
+  inputId: string;
+  result: RunnerResult;
+};
 
-export default function App() {
-  const [payload, setPayload] = useState<ExecutionPayload>({
-    lang: "js",
-    code: "",
-    stdins: [""],
-  });
-  const [results, setResults] = useState<ExecutionResult[]>([]);
+export default function App(): JSX.Element {
+  const [payload, setPayload] = useState<ExecutionPayload>(
+    (): ExecutionPayload => ({
+      lang: "cpp",
+      code: "",
+      stdins: [],
+    }),
+  );
+
+  const [activeTC, setActiveTC] = useState<string>("");
+
+  const [results, setResults] = useState<Map<string, RunnerResult>>(
+    new Map<string, RunnerResult>(),
+  );
 
   const [connected, setConnected] = useState(false);
   const socketRef = useRef<WebSocket | null>(null);
+
+  const handleAddTestCase = (testcase: string): void => {
+    const tcId: string = crypto.randomUUID();
+    setPayload(
+      (prev: ExecutionPayload): ExecutionPayload => ({
+        ...prev,
+        stdins: [
+          ...prev.stdins,
+          {
+            stdin: testcase,
+            id: tcId,
+          },
+        ],
+      }),
+    );
+    setActiveTC(tcId);
+  };
+
+  useEffect((): void => {
+    handleAddTestCase("5\n1 2 3 4 5");
+  }, []);
 
   useEffect((): (() => void) => {
     const ws = new WebSocket(`ws://localhost:3000`);
@@ -29,8 +67,13 @@ export default function App() {
     };
 
     ws.onmessage = (event: MessageEvent<string>): void => {
-      const data: ExecutionResult[] = JSON.parse(event.data);
-      setResults(data);
+      const data: ExecutionResult = JSON.parse(event.data);
+      setResults((pR: Map<string, RunnerResult>): Map<string, RunnerResult> => {
+        const newMap: Map<string, RunnerResult> = new Map<string, RunnerResult>(pR);
+        newMap.set(data.inputId, data.result);
+        return newMap;
+      });
+      console.log("adding", data);
     };
 
     ws.onclose = (): void => {
@@ -43,81 +86,74 @@ export default function App() {
   const handleSendDirect = (): void => {
     if (socketRef.current && payload.code.trim() !== "") {
       socketRef.current.send(JSON.stringify(payload));
+      console.log("sending to server");
     }
   };
 
   return (
-    <div style={{ padding: "20px", fontFamily: "sans-serif", maxWidth: "400px" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+    <div className="bg-stone-950 w-full min-h-screen px-2 py-2 flex flex-col gap-2">
+      <div className="flex justify-between items-center">
         <span
-          style={{
-            fontSize: "12px",
-            color: connected ? "green" : "red",
-            background: connected ? "#e6f4ea" : "#fce8e6",
-            padding: "2px 6px",
-            borderRadius: "4px",
-          }}
-        >
-          {connected ? "Connected" : "Offline"}
-        </span>
-      </div>
-
-      <div>
-        <textarea
-          value={payload.code}
-          rows={20}
-          cols={40}
-          onChange={(e: ChangeEvent<HTMLTextAreaElement>): void =>
-            setPayload(
-              (p: ExecutionPayload): ExecutionPayload => ({
-                ...p,
-                code: e.target.value,
-              }),
-            )
-          }
-          placeholder="Write your code here"
-          style={{ flexGrow: 1, padding: "6px" }}
-          disabled={!connected}
+          title={connected ? "connected to server" : "not connected"}
+          className={`p-1 w-fit rounded-full ${connected ? "bg-emerald-400" : "bg-red-500"}`}
         />
-        <button onClick={handleSendDirect} disabled={!connected}>
-          Run
+        <button
+          className="bg-stone-700 px-2 py-1 font-semibold text-stone-50 rounded-xs cursor-pointer"
+          onClick={handleSendDirect}
+          disabled={!connected}
+        >
+          <img className="w-3.5 text-stone-400" src={RunIcon} />
         </button>
       </div>
 
-      <div
-        style={{
-          border: "1px solid #ccc",
-          height: "200px",
-          overflowY: "auto",
-          marginBottom: "12px",
-          padding: "8px",
-        }}
-      >
-        {results.map((result: ExecutionResult, index: number): JSX.Element => {
-          if (result.verdict !== "SUCCESS") {
-            return (
-              <div key={index} style={{ color: "red", fontStyle: "italic", fontSize: "13px" }}>
-                {result.stderr}
-              </div>
-            );
+      <div>
+        <Editor
+          value={payload.code}
+          height="50vh"
+          language="cpp"
+          theme="vs-dark"
+          onChange={(value: string | undefined): void =>
+            setPayload(
+              (p: ExecutionPayload): ExecutionPayload => ({
+                ...p,
+                code: value || "",
+              }),
+            )
           }
+          options={{ automaticLayout: true }}
+        />
+      </div>
+
+      <div className="flex gap-2">
+        {payload.stdins.map((execInp: ExecutionInput, idx: number): JSX.Element => {
           return (
-            <div key={index} style={{ margin: "6px 0" }}>
-              <div
-                style={{
-                  background: "#0070f3",
-                  color: "white",
-                  padding: "6px 10px",
-                  borderRadius: "8px",
-                  display: "inline-block",
-                }}
-              >
-                {result.stdout}
-              </div>
+            <div
+              onClick={() => setActiveTC(execInp.id)}
+              className={`font-emibold text-base px-1.5 rounded-sm cursor-pointer hover:bg-stone-700 hover:text-stone-300 duration-200 ${activeTC === execInp.id ? "bg-stone-700 text-stone-300" : "text-stone-400"}`}
+            >
+              Case {idx + 1}
             </div>
           );
         })}
       </div>
+      {((): JSX.Element => {
+        const activeTCInput: string =
+          payload.stdins.find((execInp: ExecutionInput): boolean => execInp.id === activeTC)
+            ?.stdin || " ";
+        const activeTCResult: RunnerResult | undefined = results.get(activeTC);
+        return (
+          <div className="whitespace-pre">
+            <div className="text-stone-200">
+              <div>Input</div>
+              <div>{activeTCInput || " "}</div>
+            </div>
+            <div className="text-stone-200">
+              <div>Output</div>
+              <div>{activeTCResult?.stdout}</div>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }
