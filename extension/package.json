@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@headlessui/react": "^2.2.10",
     "@mind0bender/code-runner": "^1.0.2",
     "@monaco-editor/react": "^4.7.0",
     "@tailwindcss/vite": "^4.3.1",

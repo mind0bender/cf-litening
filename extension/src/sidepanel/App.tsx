@@ -1,9 +1,10 @@
 import Button from "@/components/Button";
 import StopWatch from "@/components/StopWatch";
+import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from "@headlessui/react";
 import { LANGUAGES, type RunnerResult } from "@mind0bender/code-runner";
 import { Editor } from "@monaco-editor/react";
-import { Zap } from "lucide-react";
-import { useEffect, useState, useRef, type JSX } from "react";
+import { ChevronDown, Zap } from "lucide-react";
+import { useEffect, useCallback, useState, useRef, type JSX } from "react";
 
 interface ExecutionInput {
   stdin: string;
@@ -21,6 +22,16 @@ type ExecutionResult = {
   result: RunnerResult;
 };
 
+const LanguageMap: Record<LANGUAGES, string> = {
+  c: "C",
+  cpp: "C++",
+  js: "Javascript",
+  ts: "Typescript",
+  rust: "Rust",
+  python: "Python",
+  java: "Java",
+};
+
 export default function App(): JSX.Element {
   const [payload, setPayload] = useState<ExecutionPayload>(
     (): ExecutionPayload => ({
@@ -29,15 +40,17 @@ export default function App(): JSX.Element {
       stdins: [],
     }),
   );
-
   const [activeTC, setActiveTC] = useState<string>("");
-
   const [results, setResults] = useState<Map<string, RunnerResult>>(
     new Map<string, RunnerResult>(),
   );
-
   const [connected, setConnected] = useState(false);
   const socketRef = useRef<WebSocket | null>(null);
+
+  const payloadRef = useRef<ExecutionPayload>(payload);
+  useEffect((): void => {
+    payloadRef.current = payload;
+  }, [payload]);
 
   const handleAddTestCase = (testcase: string): void => {
     const tcId: string = crypto.randomUUID();
@@ -63,11 +76,9 @@ export default function App(): JSX.Element {
   useEffect((): (() => void) => {
     const ws = new WebSocket(`ws://localhost:3000`);
     socketRef.current = ws;
-
     ws.onopen = (): void => {
       setConnected(true);
     };
-
     ws.onmessage = (event: MessageEvent<string>): void => {
       const data: ExecutionResult = JSON.parse(event.data);
       setResults((pR: Map<string, RunnerResult>): Map<string, RunnerResult> => {
@@ -75,28 +86,75 @@ export default function App(): JSX.Element {
         newMap.set(data.inputId, data.result);
         return newMap;
       });
-      console.log("adding", data);
+      console.log("result", data);
     };
-
     ws.onclose = (): void => {
       setConnected(false);
     };
-
     return (): void => ws.close();
   }, []);
 
-  const handleSendDirect = (): void => {
-    if (socketRef.current && payload.code.trim() !== "") {
-      socketRef.current.send(JSON.stringify(payload));
+  // FIX: Read directly from payloadRef so this function reference never changes
+  const handleSendDirect = useCallback((): void => {
+    const currentPayload = payloadRef.current;
+    console.log(currentPayload);
+    if (socketRef.current && currentPayload.code.trim() !== "") {
+      socketRef.current.send(JSON.stringify(currentPayload));
       console.log("sending to server");
     }
+  }, []);
+
+  const handleEditorDidMount = (editor: any, monaco: any): void => {
+    editor.addAction({
+      id: "submit-code",
+      label: "Submit Code",
+      keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter],
+      run: (): void => {
+        handleSendDirect();
+      },
+    });
   };
 
   return (
     <div className="bg-stone-950 w-full min-h-screen px-2 py-2 flex flex-col gap-2">
-      <div className="flex justify-between items-center">
+      <div className="grid grid-cols-3">
         <StopWatch />
-        <div className="flex items-center justify-center gap-2">
+        <div className="flex justify-center items-center text-stone-200">
+          <Listbox
+            value={payload.lang}
+            onChange={(newLang: LANGUAGES): void =>
+              setPayload(
+                (pP: ExecutionPayload): ExecutionPayload => ({
+                  ...pP,
+                  lang: newLang,
+                }),
+              )
+            }
+          >
+            <div className="relative z-10">
+              <ListboxButton className={"outline-none"}>
+                <Button className="text-stone-200 relative justify-between w-full min-w-30 flex items-center shadow-md outline-none cursor-pointer bg-stone-900 border-stone-700 text-base">
+                  {LanguageMap[payload.lang]}
+                  <ChevronDown />
+                </Button>
+              </ListboxButton>
+              <ListboxOptions className="mt-1 absolute max-height-60 w-full overflow-auto rounded-md bg-stone-900 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm border border-stone-700">
+                {Object.keys(LanguageMap).map(
+                  (langKey: string): JSX.Element => (
+                    <ListboxOption
+                      key={langKey}
+                      value={langKey}
+                      className="relative cursor-pointer select-none py-2 px-4 text-stone-200 data-focus:bg-stone-600 data-focus:text-stone-50 transition-colors"
+                    >
+                      {LanguageMap[langKey as LANGUAGES]}
+                    </ListboxOption>
+                  ),
+                )}
+              </ListboxOptions>
+            </div>
+          </Listbox>
+        </div>
+        <div className="flex items-center justify-end gap-2">
           <span
             title={connected ? "connected to server" : "not connected"}
             className={`p-1 w-fit rounded-full ${connected ? "bg-emerald-400" : "bg-red-500"}`}
@@ -113,13 +171,13 @@ export default function App(): JSX.Element {
           </Button>
         </div>
       </div>
-
       <Editor
         className="rounded-md overflow-hidden"
         value={payload.code}
         height="50vh"
         language="cpp"
         theme="vs-dark"
+        onMount={handleEditorDidMount}
         onChange={(value: string | undefined): void =>
           setPayload(
             (p: ExecutionPayload): ExecutionPayload => ({
@@ -135,13 +193,13 @@ export default function App(): JSX.Element {
           glyphMargin: false,
         }}
       />
-
       <div className="flex gap-1">
         {payload.stdins.map((execInp: ExecutionInput, idx: number): JSX.Element => {
           return (
             <div
+              key={execInp.id}
               onClick={() => setActiveTC(execInp.id)}
-              className={`font-emibold text-base px-2 py-0.5 rounded-sm cursor-pointer hover:ring ring-stone-700 hover:text-stone-300 duration-200 ${activeTC === execInp.id ? "bg-stone-700 text-stone-300 font-semibold" : "text-stone-400"}`}
+              className={`font-semibold text-base px-2 py-0.5 rounded-sm cursor-pointer hover:ring ring-stone-700 hover:text-stone-300 duration-200 ${activeTC === execInp.id ? "bg-stone-700 text-stone-300 font-semibold" : "text-stone-400"}`}
             >
               Case {idx + 1}
             </div>
