@@ -41,17 +41,17 @@ export default function App(): JSX.Element {
       stdins: [],
     }),
   );
+  const payloadRef = useRef<ExecutionPayload>(payload);
+  useEffect((): void => {
+    payloadRef.current = payload;
+  }, [payload]);
+
   const [activeTC, setActiveTC] = useState<string>("");
   const [results, setResults] = useState<Map<string, RunnerResult>>(
     new Map<string, RunnerResult>(),
   );
   const [connected, setConnected] = useState(false);
   const socketRef = useRef<WebSocket | null>(null);
-
-  const payloadRef = useRef<ExecutionPayload>(payload);
-  useEffect((): void => {
-    payloadRef.current = payload;
-  }, [payload]);
 
   const handleAddTestCase = (testcase: string): void => {
     const tcId: string = crypto.randomUUID();
@@ -93,9 +93,12 @@ export default function App(): JSX.Element {
 
           const { payload: testCases }: TestCasesRequestMessage = message;
           if (!testCases) return;
-          (testCases as TestCase[]).slice(0, 5).forEach((testCase: TestCase): void => {
-            handleAddTestCase(testCase);
-          });
+          const remainingTCCount: number = 5 - payload.stdins.length;
+          (testCases as TestCase[])
+            .slice(0, remainingTCCount)
+            .forEach((testCase: TestCase): void => {
+              handleAddTestCase(testCase);
+            });
         },
       );
     } catch (error) {
@@ -106,7 +109,7 @@ export default function App(): JSX.Element {
   const firstRequest: RefObject<boolean> = useRef<boolean>(true);
   useEffect((): void => {
     if (firstRequest.current) requestTestCasesFromPage();
-    // firstRequest.current = false;
+    firstRequest.current = false;
   }, []);
 
   useEffect((): (() => void) => {
