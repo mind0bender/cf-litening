@@ -6,10 +6,8 @@ const setCFDark = (theme: Theme): void => {
       document.body.classList.remove("cf-dark");
       break;
     case Theme.dark:
-      document.body.classList.add("cf-dark");
-      break;
     case Theme.unknown:
-      document.body.classList.remove("cf-dark");
+      document.body.classList.add("cf-dark");
       break;
   }
 };
@@ -34,7 +32,6 @@ chrome.runtime.onMessage.addListener(
   },
 );
 
-const { theme: lastTheme }: { theme: Theme } =
-  (await chrome.storage.local.get("theme")) ?? 1;
+const { theme: lastTheme }: { theme: Theme } = (await chrome.storage.local.get("theme")) ?? 1;
 
 setCFDark(lastTheme);

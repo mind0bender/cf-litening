@@ -1,13 +1,13 @@
 import { Theme } from "@/popup/App";
+import { ThemeMessage } from "@/types";
 
 const cfDarkLogo = chrome.runtime.getURL("src/assets/cf-dark.png");
 
 export const logoSetterFactory = (): ((theme: Theme) => void) => {
-  const header: HTMLDivElement | null = document.getElementById(
-    "header",
-  ) as HTMLDivElement;
-  const imgsInHeader: HTMLCollectionOf<HTMLImageElement> =
-    header?.getElementsByTagName("img") as HTMLCollectionOf<HTMLImageElement>;
+  const header: HTMLDivElement | null = document.getElementById("header") as HTMLDivElement;
+  const imgsInHeader: HTMLCollectionOf<HTMLImageElement> = header?.getElementsByTagName(
+    "img",
+  ) as HTMLCollectionOf<HTMLImageElement>;
   const logoImg: HTMLImageElement | undefined = imgsInHeader?.[0];
   const originalSrc: string | undefined = logoImg?.src;
   if (logoImg) logoImg.src = cfDarkLogo;
@@ -30,24 +30,17 @@ const setLogo: (theme: Theme) => void = logoSetterFactory();
 
 chrome.runtime.onMessage.addListener(
   (
-    message: {
-      action: string;
-      payload: any;
-    },
+    message: ThemeMessage,
     sender: chrome.runtime.MessageSender,
-    sendResponse: (response?: any) => void,
+    _sendResponse: (response?: any) => void,
   ): void => {
     if (sender.id === chrome.runtime.id && message.action === "SET_THEME") {
       const theme = message.payload as Theme;
       setLogo(theme);
-      sendResponse({
-        status: "success",
-      });
     }
   },
 );
 
-const { theme: lastTheme }: { theme: Theme } =
-  (await chrome.storage.local.get("theme")) ?? 1;
+const { theme: lastTheme }: { theme: Theme } = (await chrome.storage.local.get("theme")) ?? 1;
 
 setLogo(lastTheme);

@@ -1,9 +1,10 @@
 import Button from "@/components/Button";
 import StopWatch from "@/components/StopWatch";
+import { TestCase, TestCasesRequestMessage } from "@/types";
 import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from "@headlessui/react";
 import { LANGUAGES, type RunnerResult } from "@mind0bender/code-runner";
 import { Editor } from "@monaco-editor/react";
-import { ChevronDown, Zap } from "lucide-react";
+import { ChevronDown, RefreshCcw, Zap } from "lucide-react";
 import { useEffect, useCallback, useState, useRef, type JSX } from "react";
 
 interface ExecutionInput {
@@ -69,8 +70,43 @@ export default function App(): JSX.Element {
     setActiveTC(tcId);
   };
 
+  const requestTestCasesFromPage = async () => {
+    try {
+      const [activeTab] = await chrome.tabs.query({
+        active: true,
+        currentWindow: true,
+      });
+
+      if (!activeTab?.id) {
+        console.error("No active tab found");
+        return;
+      }
+
+      chrome.tabs.sendMessage<TestCasesRequestMessage>(
+        activeTab.id,
+        { action: "TEST_CASE_REQUEST", payload: undefined },
+        (message: TestCasesRequestMessage): void => {
+          if (chrome.runtime.lastError) {
+            console.error("Error communicating with webpage:", chrome.runtime.lastError.message);
+            return;
+          }
+
+          const { payload: testCases }: TestCasesRequestMessage = message;
+          if (!testCases) return;
+          (testCases as TestCase[]).forEach((testCase: TestCase): void => {
+            handleAddTestCase(testCase);
+          });
+
+          console.log("Received test cases in sidepanel:", message);
+        },
+      );
+    } catch (error) {
+      console.error("Failed to fetch test cases:", error);
+    }
+  };
+
   useEffect((): void => {
-    handleAddTestCase("5\n1 2 3 4 5");
+    requestTestCasesFromPage();
   }, []);
 
   useEffect((): (() => void) => {
@@ -119,7 +155,7 @@ export default function App(): JSX.Element {
     <div className="bg-stone-950 w-full min-h-screen px-2 py-2 flex flex-col gap-2">
       <div className="grid grid-cols-3">
         <StopWatch />
-        <div className="flex justify-center items-center text-stone-200">
+        <div className="flex justify-center items-center text-indigo-200">
           <Listbox
             value={payload.lang}
             onChange={(newLang: LANGUAGES): void =>
@@ -133,10 +169,10 @@ export default function App(): JSX.Element {
           >
             <div className="relative z-10">
               <ListboxButton className={"outline-none"}>
-                <Button className="text-stone-200 relative justify-between w-full min-w-30 flex items-center shadow-md outline-none cursor-pointer bg-stone-900 border-stone-700 text-base">
+                <div className="px-2 py-1 border border-indigo-200 text-indigo-200 rounded-md hover:bg-indigo-200/10 duration-200 relative justify-between w-full min-w-30 flex items-center shadow-md outline-none cursor-pointer bg-stone-900 text-base">
                   {LanguageMap[payload.lang]}
                   <ChevronDown />
-                </Button>
+                </div>
               </ListboxButton>
               <ListboxOptions className="mt-1 absolute max-height-60 w-full overflow-auto rounded-md bg-stone-900 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm border border-stone-700">
                 {Object.keys(LanguageMap).map(
@@ -144,7 +180,7 @@ export default function App(): JSX.Element {
                     <ListboxOption
                       key={langKey}
                       value={langKey}
-                      className="relative cursor-pointer select-none py-2 px-4 text-stone-200 data-focus:bg-stone-600 data-focus:text-stone-50 transition-colors"
+                      className="relative cursor-pointer select-none py-2 px-4 text-indigo-200 data-focus:bg-stone-600 data-focus:text-stone-50 transition-colors"
                     >
                       {LanguageMap[langKey as LANGUAGES]}
                     </ListboxOption>
@@ -193,18 +229,23 @@ export default function App(): JSX.Element {
           glyphMargin: false,
         }}
       />
-      <div className="flex gap-1">
-        {payload.stdins.map((execInp: ExecutionInput, idx: number): JSX.Element => {
-          return (
-            <div
-              key={execInp.id}
-              onClick={() => setActiveTC(execInp.id)}
-              className={`font-semibold text-base px-2 py-0.5 rounded-sm cursor-pointer hover:ring ring-stone-700 hover:text-stone-300 duration-200 ${activeTC === execInp.id ? "bg-stone-700 text-stone-300 font-semibold" : "text-stone-400"}`}
-            >
-              Case {idx + 1}
-            </div>
-          );
-        })}
+      <div className="flex justify-between items-center px-2 py-2">
+        <div className="flex gap-1">
+          {payload.stdins.map((execInp: ExecutionInput, idx: number): JSX.Element => {
+            return (
+              <div
+                key={execInp.id}
+                onClick={(): void => setActiveTC(execInp.id)}
+                className={`font-semibold select-none text-base px-2 py-0.5 rounded-sm cursor-pointer hover:ring ring-stone-700 hover:text-stone-300 duration-200 ${activeTC === execInp.id ? "bg-stone-700 text-stone-300 font-semibold" : "text-stone-400"}`}
+              >
+                Case {idx + 1}
+              </div>
+            );
+          })}
+        </div>
+        <Button title="Reload Test Cases" onClick={(): Promise<void> => requestTestCasesFromPage()}>
+          <RefreshCcw size={16} />
+        </Button>
       </div>
       {((): JSX.Element => {
         const activeTCInput: string =

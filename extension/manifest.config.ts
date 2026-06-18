@@ -14,7 +14,7 @@ export default defineManifest({
     },
     default_popup: "src/popup/index.html",
   },
-  permissions: ["sidePanel", "contentSettings", "storage"],
+  permissions: ["sidePanel", "contentSettings", "storage", "tabs", "activeTab"],
   content_scripts: [
     {
       js: ["src/content/main.tsx"],
@@ -22,7 +22,7 @@ export default defineManifest({
       run_at: "document_idle",
     },
     {
-      js: ["src/content/views/App.css.js"],
+      js: ["src/content/views/App.css"],
       matches: ["https://codeforces.com/*"],
       run_at: "document_start",
     },
