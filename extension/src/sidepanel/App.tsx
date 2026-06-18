@@ -5,7 +5,7 @@ import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from "@headless
 import { LANGUAGES, type RunnerResult } from "@mind0bender/code-runner";
 import { Editor } from "@monaco-editor/react";
 import { ChevronDown, RefreshCcw, Zap } from "lucide-react";
-import { useEffect, useCallback, useState, useRef, type JSX } from "react";
+import { useEffect, useCallback, useState, useRef, type JSX, RefObject } from "react";
 
 interface ExecutionInput {
   stdin: string;
@@ -93,11 +93,9 @@ export default function App(): JSX.Element {
 
           const { payload: testCases }: TestCasesRequestMessage = message;
           if (!testCases) return;
-          (testCases as TestCase[]).forEach((testCase: TestCase): void => {
+          (testCases as TestCase[]).slice(0, 5).forEach((testCase: TestCase): void => {
             handleAddTestCase(testCase);
           });
-
-          console.log("Received test cases in sidepanel:", message);
         },
       );
     } catch (error) {
@@ -105,8 +103,10 @@ export default function App(): JSX.Element {
     }
   };
 
+  const firstRequest: RefObject<boolean> = useRef<boolean>(true);
   useEffect((): void => {
-    requestTestCasesFromPage();
+    if (firstRequest.current) requestTestCasesFromPage();
+    // firstRequest.current = false;
   }, []);
 
   useEffect((): (() => void) => {
@@ -150,6 +150,11 @@ export default function App(): JSX.Element {
       },
     });
   };
+
+  const activeTCInput: string =
+    payload.stdins.find((execInp: ExecutionInput): boolean => execInp.id === activeTC)?.stdin ||
+    " ";
+  const activeTCResult: RunnerResult | undefined = results.get(activeTC);
 
   return (
     <div className="bg-stone-950 w-full min-h-screen px-2 py-2 flex flex-col gap-2">
@@ -229,14 +234,14 @@ export default function App(): JSX.Element {
           glyphMargin: false,
         }}
       />
-      <div className="flex justify-between items-center px-2 py-2">
+      <div className="flex justify-between items-center px-2 py-2 overflow-auto gap-4">
         <div className="flex gap-1">
           {payload.stdins.map((execInp: ExecutionInput, idx: number): JSX.Element => {
             return (
               <div
                 key={execInp.id}
                 onClick={(): void => setActiveTC(execInp.id)}
-                className={`font-semibold select-none text-base px-2 py-0.5 rounded-sm cursor-pointer hover:ring ring-stone-700 hover:text-stone-300 duration-200 ${activeTC === execInp.id ? "bg-stone-700 text-stone-300 font-semibold" : "text-stone-400"}`}
+                className={`font-semibold text-nowrap select-none text-base px-2 py-0.5 rounded-sm cursor-pointer hover:ring ring-stone-700 hover:text-stone-300 duration-200 ${activeTC === execInp.id ? "bg-stone-700 text-stone-300 font-semibold" : "text-stone-400"}`}
               >
                 Case {idx + 1}
               </div>
@@ -247,24 +252,16 @@ export default function App(): JSX.Element {
           <RefreshCcw size={16} />
         </Button>
       </div>
-      {((): JSX.Element => {
-        const activeTCInput: string =
-          payload.stdins.find((execInp: ExecutionInput): boolean => execInp.id === activeTC)
-            ?.stdin || " ";
-        const activeTCResult: RunnerResult | undefined = results.get(activeTC);
-        return (
-          <div className="whitespace-pre flex flex-col gap-4">
-            <div className="text-stone-200">
-              <div className="text-base font-semibold">Input</div>
-              <div>{activeTCInput || " "}</div>
-            </div>
-            <div className="text-stone-200">
-              <div className="text-base font-semibold">Output</div>
-              <div>{activeTCResult?.stdout}</div>
-            </div>
-          </div>
-        );
-      })()}
+      <div className="whitespace-pre flex flex-col gap-4 overflow-auto">
+        <div className="text-stone-200">
+          <div className="text-base font-semibold">Input</div>
+          <div>{activeTCInput || " "}</div>
+        </div>
+        <div className="text-stone-200">
+          <div className="text-base font-semibold">Output</div>
+          <div>{activeTCResult?.stdout}</div>
+        </div>
+      </div>
     </div>
   );
 }
