@@ -4,15 +4,16 @@
   "type": "module",
   "module": "src/index.ts",
   "scripts": {
+    "start": "bun src/index.ts",
     "dev": "bun run --watch src/index.ts"
+  },
+  "dependencies": {
+    "@mind0bender/code-runner": "^1.0.2"
   },
   "devDependencies": {
     "@types/bun": "latest"
   },
   "peerDependencies": {
     "typescript": "^5"
-  },
-  "dependencies": {
-    "@mind0bender/code-runner": "^1.0.2"
   }
 }
