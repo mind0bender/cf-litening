@@ -1,7 +1,12 @@
 import { Theme } from "./popup/App";
 
 export type ChromeMessageActions = "TEST_CASE" | "TEST_CASE_REQUEST" | "SET_THEME";
-export type TestCase = string;
+export type TestCaseInput = string;
+export type TestCaseOutput = string;
+export interface TestCase {
+  input: TestCaseInput;
+  output: TestCaseOutput;
+}
 export type ChromeMessagePayloads = Theme | TestCase[];
 
 export interface ChromeMessageT<A = ChromeMessageActions, P = ChromeMessagePayloads> {

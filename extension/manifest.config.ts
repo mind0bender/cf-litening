@@ -22,7 +22,7 @@ export default defineManifest({
       run_at: "document_idle",
     },
     {
-      js: ["src/content/views/App.css"],
+      css: ["src/content/views/App.css"],
       matches: ["https://codeforces.com/*"],
       run_at: "document_start",
     },

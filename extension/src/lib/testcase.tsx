@@ -7,14 +7,27 @@ function scrapeTestCase(): TestCase[] {
     const currTCthInpLines: NodeListOf<HTMLDivElement> = document.querySelectorAll(
       `.input .test-example-line-${currTC}`,
     );
-    if (!currTCthInpLines.length) break;
-    testCases[currTC - 1] = "";
+    const currTCthOutLines: NodeListOf<HTMLDivElement> = document.querySelectorAll(
+      `.output .test-example-line-${currTC}`,
+    );
+    if (!(currTCthInpLines.length + currTCthOutLines.length)) break;
+    testCases[currTC - 1] = {
+      input: "",
+      output: "",
+    } satisfies TestCase;
     currTCthInpLines.forEach((currTCthInpLine: Element): void => {
       const match = currTCthInpLine.className.match(/test-example-line-(\d+)/);
       if (match) {
-        testCases[currTC - 1] += currTCthInpLine.textContent + "\n";
+        testCases[currTC - 1].input += currTCthInpLine.textContent + "\n";
       }
     });
+    currTCthOutLines.forEach((currTCthOutLine: Element): void => {
+      const match = currTCthOutLine.className.match(/test-example-line-(\d+)/);
+      if (match) {
+        testCases[currTC - 1].output += currTCthOutLine.textContent + "\n";
+      }
+    });
+
     currTC++;
   }
 

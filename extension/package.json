@@ -1,8 +1,8 @@
 {
   "name": "cf-litening",
-  "type": "module",
-  "version": "0.0.3",
+  "version": "1.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
@@ -21,14 +21,14 @@
     "tailwindcss": "^4.3.1"
   },
   "devDependencies": {
-    "@crxjs/vite-plugin": "^2.0.3",
-    "@types/chrome": "^0.1.1",
-    "@types/node": "^24.0.15",
+    "@crxjs/vite-plugin": "^2.0.0-beta.33",
+    "@types/bun": "^1.3.14",
+    "@types/chrome": "^0.1.43",
+    "@types/node": "^25.9.3",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
     "@vitejs/plugin-react": "^4.7.0",
     "chrome-types": "^0.1.418",
-    "typescript": "~5.8.3",
     "vite": "^7.0.5",
     "vite-plugin-zip-pack": "^1.2.4"
   }

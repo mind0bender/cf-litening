@@ -654,12 +654,18 @@ body.cf-dark {
   }
 
   & .ttypography {
+    & pre.lstlisting {
+      background: var(--color-stone-900) !important;
+    }
     & p {
       color: var(--color-stone-300) !important;
     }
   }
   & .comment-table {
     border-color: var(--color-stone-400);
+  }
+  & .prettyprint .pln {
+    color: var(--color-stone-50) !important;
   }
   & .prettyprint .str {
     color: var(--color-green-400) !important;
