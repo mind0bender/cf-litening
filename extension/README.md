@@ -1,52 +1,94 @@
-# React + Vite + CRXJS
+# Codeforces Litening: Dark Theme & Executor
 
-This template helps you quickly start developing Chrome extensions with React, TypeScript and Vite. It includes the CRXJS Vite plugin for seamless Chrome extension development.
+A lightweight browser extension designed to elevate your competitive programming experience on Codeforces. It brings a sleek, eye-friendly dark mode and a built-in compilation and execution environment directly in the Browser.
 
 ## Features
 
-- React with TypeScript
-- TypeScript support
-- Vite build tool
-- CRXJS Vite plugin integration
-- Chrome extension manifest configuration
+- **🌙 True Dark Theme:** Say goodbye to late-night eye strain. Enjoy a carefully designed, modern dark interface tailored specifically for Codeforces problem pages, dashboards, and blogs.
+- **💻 Compile & Execute:** Test your solutions directly on the problem page. No need to constantly switch between your IDE and the browser.
+  - Supports multiple languages (C/C++, JS/TS, Python, Rust, Java).
+  - Custom input/output matching.
+  - Fast execution with clear error reporting.
 
-## Quick Start
+---
 
-1. Install dependencies:
+## Installation
 
-```bash
-npm install
-```
+### For Developers / Manual Installation
 
-2. Start development server:
+1. **Clone the Repository and Navigate to the Directory:**
 
-```bash
-npm run dev
-```
+   ```bash
+   git clone https://github.com/mind0bender/cf-litening.git
+   cd cf-litening/extension
+   ```
 
-3. Open Chrome and navigate to `chrome://extensions/`, enable "Developer mode", and load the unpacked extension from the `dist` directory.
+1. **Install Dependencies and Build the Project**
 
-4. Build for production:
+   ```bash
+   bun i
+   bun run build
+   ```
 
-```bash
-npm run build
-```
+1. **Extract the Zip file from the `releases` Directory**
 
-## Project Structure
+   ```bash
+   # make sure to replace the <version> with in the command
+   unzip releases/cf-litening-<version>.zip -d biuld-dist
+   ```
 
-- `src/popup/` - Extension popup UI
-- `src/content/` - Content scripts
-- `manifest.config.ts` - Chrome extension manifest configuration
+1. **Open Extension Management Page:**
+   Navigate to [about://extensions/](about://extensions)
 
-## Documentation
+1. **Enable Developer Mode:** Toggle the **Developer mode** switch in the top-right corner.
 
-- [React Documentation](https://reactjs.org/)
-- [Vite Documentation](https://vitejs.dev/)
-- [CRXJS Documentation](https://crxjs.dev/vite-plugin)
+1. **Load Unpacked:** Click the **Load unpacked** button in the top-left and select the project extracted directory `build-dist` the folder containing `manifest.json`).
 
-## Chrome Extension Development Notes
+---
 
-- Use `manifest.config.ts` to configure your extension
-- The CRXJS plugin automatically handles manifest generation
-- Content scripts should be placed in `src/content/`
-- Popup UI should be placed in `src/popup/`
+## How to Use
+
+### 1. Toggling Dark Theme
+
+The dark theme can be easily toggled on or off via the extension's popup menu in your browser toolbar.
+
+### 2. Compiling and Running Code
+
+1. Navigate to any Codeforces problem page.
+1. Click on the **Cf-Litening** Extension Icon to Open its Popup Menu.
+1. Click the **Compiler** Button on the Popup Menu.
+1. Select your programming language, paste your code, and provide custom inputs (or let it auto-fetch sample test cases).
+1. Click **Run Code**(top right) to see the compilation status and output in real-time.
+
+---
+
+## Tech Stack
+
+- **Frontend:** React(TS), TailwindCSS, CRXJS
+- **Extension API:** WebExtensions API (Manifest V3)
+- **Backend/Execution API:** Custom backend Powered By [@mind0bender/code-runner](https://github.com/mind0bender/code-runner.git)
+
+---
+
+## Contributing
+
+Any contributions you make are **greatly appreciated**.
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+---
+
+## License
+
+Distributed under the MIT License. See `LICENSE` for more information.
+
+---
+
+## Acknowledgments
+
+- Inspired by the competitive programming community's need for a seamless UI.
+- [Codeforces](https://codeforces.com/) for the amazing platform.
