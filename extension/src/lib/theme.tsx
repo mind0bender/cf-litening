@@ -21,7 +21,6 @@ chrome.runtime.onMessage.addListener(
     sender: chrome.runtime.MessageSender,
     sendResponse: (response?: any) => void,
   ): void => {
-    console.log({ message });
     if (sender.id === chrome.runtime.id && message.action === "SET_THEME") {
       const theme = message.payload as Theme;
       setCFDark(theme);

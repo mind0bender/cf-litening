@@ -49,6 +49,5 @@ chrome.runtime.onMessage.addListener(
 
 function sendTestCase(sendResponse: (response?: any) => void): void {
   const scrapedTestCase = scrapeTestCase();
-  console.log({ scrapedTestCase });
   sendResponse({ action: "TEST_CASE", payload: scrapedTestCase });
 }

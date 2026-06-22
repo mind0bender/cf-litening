@@ -119,7 +119,7 @@ export default function App(): JSX.Element {
   }, []);
 
   useEffect((): (() => void) => {
-    const ws = new WebSocket(`ws://localhost:3000`);
+    const ws = new WebSocket(import.meta.env.VITE_SERVER_URL || `ws://localhost:3000`);
     socketRef.current = ws;
     ws.onopen = (): void => {
       setConnected(true);
@@ -131,7 +131,6 @@ export default function App(): JSX.Element {
         newMap.set(data.inputId, data.result);
         return newMap;
       });
-      console.log("result", data);
     };
     ws.onclose = (): void => {
       setConnected(false);
@@ -150,10 +149,8 @@ export default function App(): JSX.Element {
         }),
       ),
     };
-    console.log(currentPayload);
     if (socketRef.current && currentPayload.code.trim() !== "") {
       socketRef.current.send(JSON.stringify(currentPayload));
-      console.log("sending to server");
     }
   }, []);
 
@@ -191,7 +188,7 @@ export default function App(): JSX.Element {
           >
             <div className="relative z-10">
               <ListboxButton className={"outline-none"}>
-                <div className="px-2 py-1 border border-indigo-200 text-indigo-200 rounded-md hover:bg-indigo-200/10 duration-200 relative justify-between w-full min-w-30 flex items-center shadow-md outline-none cursor-pointer bg-stone-900 text-base">
+                <div className="px-2 border border-indigo-200 text-indigo-200 rounded-md hover:bg-indigo-200/10 duration-200 relative justify-between w-full min-w-26 flex items-center shadow-md outline-none cursor-pointer bg-stone-900 text-base">
                   {LanguageMap[payload.lang]}
                   <ChevronDown />
                 </div>
@@ -252,7 +249,10 @@ export default function App(): JSX.Element {
         }}
       />
       <div className="relative flex justify-between items-center px-2 py-2 overflow-auto gap-4">
-        <div className="flex gap-1">
+        <div className="flex gap-1 min-h-5">
+          {!payload.examples.length && (
+            <div className="text-stone-300 text-base">No Test Case Added</div>
+          )}
           {payload.examples.map((execInp: Example, idx: number): JSX.Element => {
             return (
               <div
